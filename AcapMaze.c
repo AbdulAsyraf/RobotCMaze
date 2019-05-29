@@ -10,9 +10,8 @@ int choices = 0;
 char optimizedDecisions[20];
 int Tp = 40;
 int options = 0;
-int turnDeg = 84.5;
+int turnDeg = 84;
 bool dahNampak = false;
-//float lantai = 10;
 char decisions[20];
 int done = 0;
 //pusing -1 for left 1 for right
@@ -34,14 +33,8 @@ void pusing(int where){
 	wait1Msec(500);
 	if(where != 0){
 		while(abs(getGyroDegrees(gyro)) < turnDeg){
-			//if(abs(getGyroDegrees(gyro)) < turnDeg){
 				setMotorSpeed(left, -Tp/5 * where);
 				setMotorSpeed(right, Tp/5 * where);
-			//}
-			//else if(abs(getGyroDegrees(gyro)) > turnDeg){
-			//	setMotorSpeed(left, Tp/2 * where);
-			//	setMotorSpeed(right, -Tp/2 * where);
-			//}
 		}
 
 		setMotorSpeed(left, -5 * where);
@@ -52,30 +45,13 @@ void pusing(int where){
 
 }
 
-//to be changed
-
-//void depanSampai(float gapUS, float gapIR){
-
-//	depan(3);
-
-//	while (getUSDistance(eyes)<=(2 * gapUS) && getIRDistance(eyesIR) > gapIR){
-//		setMotorSpeed(left, Tp);
-//		setMotorSpeed(right, Tp);
-//	}
-//	depan(1.5);
-//	stopAllMotors();
-//	wait1Msec(250);
-//}
-
 void depanSampai(float gapLeft, float gapFront){
 	float front, kiri, kanan;
 	front = 0;
 	kiri = 0;
 	kanan = 0;
 
-	//while(getColorReflected(garis) > lantai){
 	while(getColorName(garis) != colorBlack){
-		//front = getIRDistance(eyesIR);
 		//look forward
 		front = getUSDistance(eyes);
 		wait1Msec(250);
@@ -83,7 +59,6 @@ void depanSampai(float gapLeft, float gapFront){
 		waitUntilMotorStop(head);
 		wait1Msec(250);
 
-		//side = getIRDistance(eyesIR);
 		//look left
 		kiri = getUSDistance(eyes);
 		wait1Msec(250);
@@ -101,8 +76,6 @@ void depanSampai(float gapLeft, float gapFront){
 		if (front < (gapFront * 1.05) || kiri > (gapLeft * 1.5) || kanan > (gapLeft * 1.5)){
 			stopAllMotors();
 			wait1Msec(250);
-			//if (getColorReflected(garis) < lantai)
-			//	dahNampak = true;
 			return;
 		}
 		else{
@@ -115,29 +88,20 @@ void depanSampai(float gapLeft, float gapFront){
 
 void tengok(float gapLeft){
 	float scans[3];
-	//for (int j = 0; j < 3; j++)
-	//	options[j] = 0;
-	//static int options[3] = {0, 0, 0};
-	//options[0] left
-	//options[1] forward
-	//options[2] right
 	options = 0;
 
 	setMotorTarget(head, -90, 20);
 	waitUntilMotorStop(head);
-	//scans[0] = getIRDistance(eyesIR);
 	scans[0] = getUSDistance(eyes);
 	wait1Msec(250);
 
 	setMotorTarget(head, 0, 20);
 	waitUntilMotorStop(head);
-	//scans[1] = getIRDistance(eyesIR);
 	scans[1] = getUSDistance(eyes);
 	wait1Msec(250);
 
 	setMotorTarget(head, 91, 20);
 	waitUntilMotorStop(head);
-	//scans[2] = getIRDistance(eyesIR);
 	scans[2] = getUSDistance(eyes);
 	wait1Msec(250);
 
@@ -146,15 +110,6 @@ void tengok(float gapLeft){
 	wait1Msec(250);
 
 	float gap = 2 * gapLeft;
-	//if (gap > 80){
-	//	gap = 80;
-	//}
-
-	//for (int i = 0; i < 3; i++){
-	//	if(scans[i] > gap){
-	//		options[i] = 1;
-	//	}
-	//}
 	if (scans[0] > gap)
 		options = options + 1;
 	if (scans[1] > 60)
@@ -211,36 +166,44 @@ void simplify(){
 			after = decisions[i+1];
 			if(current == 'B'){
 				if(before == 'F' && after == 'R'){
+					done--;
 					optimizedDecisions[done] = 'L';
 					done++;
 					playSound(soundBlip);
-					wait1Msec(2000);
+					wait1Msec(200);
 					i++;
 				}
 				else if(before == 'F' && after == 'L'){
+					done--;
 					optimizedDecisions[done] = 'R';
 					done++;
 					playSound(soundBlip);
-					wait1Msec(2000);
+					wait1Msec(200);
 					i++;
 				}
 				else if(before == 'L' && after == 'L'){
+					done--;
 					optimizedDecisions[done] = 'R';
 					done++;
 					playSound(soundBlip);
-					wait1Msec(2000);
+					wait1Msec(200);
 					i++;
 				}
 				else if(before == 'L' && after == 'F'){
+					done--;
 					optimizedDecisions[done] = 'R';
 					done++;
 					playSound(soundBlip);
-					wait1Msec(2000);
+					wait1Msec(200);
 					i++;
 				}
 			}
 			else if (after == '0'){
-				optimizedDecisions = current;
+				optimizedDecisions[done] = current;
+			}
+			else{
+				optimizedDecisions[done] = current;
+				done++;
 			}
 		}
 		for (int y = 0; y < done; y++){
@@ -304,27 +267,12 @@ void reverse(){
 		}
 	}
 	stopAllMotors();
-	//playSound(soundException);
 }
 
 task main(){
 
-	//int * i;
-	//int f[3];
-
-	//float gapFront = getIRDistance(eyes);
-	//float lantai = getColorReflected(garis) * 0.6;
-	//setMotorTarget(head, -90, 10);
-	//waitUntilMotorStop(head);
-	////float gapLeft = getIRDistance(eyesIR);
-	//float gapLeft = getUSDistance(eyes);
-	//float gapFront = gapLeft;
 	float gapLeft = 22.0;
 	float gapFront = 20.0;
-	//wait1Msec(250);
-	//setMotorTarget(head, 0, 10);
-	//waitUntilMotorStop(head);
-	//wait1Msec(250);
 
 	for (int i = 0; i < 20; i++){
 		decisions[i] = '0';
@@ -349,4 +297,5 @@ task main(){
 	simplify();
 	playSound(soundBeepBeep);
 	reverse();
+	depan(2);
 }
