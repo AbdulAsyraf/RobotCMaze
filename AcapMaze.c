@@ -10,37 +10,66 @@ int choices = 0;
 char optimizedDecisions[20];
 int Tp = 40;
 int options = 0;
-int turnDeg = 84;
+//int turnDeg = 82;
+int leftDeg = 86;
+int rightDeg = 89;
 bool dahNampak = false;
 char decisions[20];
 int done = 0;
-//pusing -1 for left 1 for right
 
 void depan(float masa){
 	resetTimer(T1);
-	while(getTimer(T1, seconds) < masa){
-		setMotorSpeed(left, Tp);
-		setMotorSpeed(right, Tp);
-	}
-	stopAllMotors();
-	wait1Msec(250);
+		while(getTimer(T1, seconds) < masa && !dahNampak){
+			//setMotorSpeed(left, speed);
+			//setMotorSpeed(right, speed);
+			if (getColorName(garis) != colorBlack){
+				//setMultipleMotors(Tp, left, right);
+				setMotorSync(left, right, 0, Tp);
+			}
+			else
+				dahNampak = true;
+		}
+		stopAllMotors();
+		wait1Msec(250);
 }
+
+//void depan(float masa){
+//	//float speed = 0;
+//	forward(masa, seconds, Tp);
+//	stopAllMotors();
+//	wait1Msec(250);
+//}
 
 //pusing -1 for left 1 for right
 void pusing(int where){
 
 	resetGyro(gyro);
 	wait1Msec(500);
-	if(where != 0){
-		while(abs(getGyroDegrees(gyro)) < turnDeg){
-				setMotorSpeed(left, -Tp/5 * where);
-				setMotorSpeed(right, Tp/5 * where);
+	//left turn
+	if (where == -1){
+		while(abs(getGyroDegrees(gyro)) < leftDeg){
+			setMotorSpeed(left, Tp/5);
+			setMotorSpeed(right, -Tp/5);
 		}
-
-		setMotorSpeed(left, -5 * where);
-		setMotorSpeed(right, 5 * where);
-		wait1Msec(250);
 	}
+	//reich turn
+	else if (where == 1){
+		while(abs(getGyroDegrees(gyro)) < rightDeg){
+			setMotorSpeed(left, -Tp/4);
+			setMotorSpeed(right, Tp/4);
+		}
+	}
+
+	//if(where != 0){
+	//	while(abs(getGyroDegrees(gyro)) < turnDeg){
+	//			setMotorSpeed(left, -Tp/5 * where);
+	//			setMotorSpeed(right, Tp/5 * where);
+	//	}
+
+	//	setMotorSpeed(left, -5 * where);
+	//	setMotorSpeed(right, 5 * where);
+	//	wait1Msec(250);
+	//}
 	stopAllMotors();
 
 }
@@ -51,18 +80,19 @@ void depanSampai(float gapLeft, float gapFront){
 	kiri = 0;
 	kanan = 0;
 
-	while(getColorName(garis) != colorBlack){
+	while(!dahNampak){
 		//look forward
+		wait1Msec(250);
 		front = getUSDistance(eyes);
 		wait1Msec(250);
-		setMotorTarget(head, -90, 20);
+		setMotorTarget(head, -92, 20);
 		waitUntilMotorStop(head);
 		wait1Msec(250);
 
 		//look left
 		kiri = getUSDistance(eyes);
 		wait1Msec(250);
-		setMotorTarget(head, 91, 20);
+		setMotorTarget(head, 92, 20);
 		waitUntilMotorStop(head);
 		wait1Msec(250);
 
@@ -73,7 +103,7 @@ void depanSampai(float gapLeft, float gapFront){
 		waitUntilMotorStop(head);
 		wait1Msec(250);
 
-		if (front < (gapFront * 1.05) || kiri > (gapLeft * 1.5) || kanan > (gapLeft * 1.5)){
+		if (front < (gapFront * 1.05) || kiri > (gapLeft * 2) || kanan > (gapLeft * 2)){
 			stopAllMotors();
 			wait1Msec(250);
 			return;
@@ -82,26 +112,27 @@ void depanSampai(float gapLeft, float gapFront){
 			depan(0.5);
 		}
 	}
-	playSound(soundBeepBeep);
-	dahNampak = true;
 }
 
 void tengok(float gapLeft){
 	float scans[3];
 	options = 0;
 
-	setMotorTarget(head, -90, 20);
+	setMotorTarget(head, -92, 20);
 	waitUntilMotorStop(head);
+	wait1Msec(250);
 	scans[0] = getUSDistance(eyes);
 	wait1Msec(250);
 
 	setMotorTarget(head, 0, 20);
 	waitUntilMotorStop(head);
+	wait1Msec(250);
 	scans[1] = getUSDistance(eyes);
 	wait1Msec(250);
 
-	setMotorTarget(head, 91, 20);
+	setMotorTarget(head, 92, 20);
 	waitUntilMotorStop(head);
+	wait1Msec(250);
 	scans[2] = getUSDistance(eyes);
 	wait1Msec(250);
 
@@ -121,10 +152,10 @@ void tengok(float gapLeft){
 void compile(char option){
 	decisions[choices] = option;
 	choices++;
-	for (int i = 0; i < choices; i++){
-		playSound(soundBlip);
-		wait1Msec(250);
-	}
+	//for (int i = 0; i < choices; i++){
+	//	playSound(soundBlip);
+	//	wait1Msec(250);
+	//}
 }
 
 void decide(){
@@ -169,32 +200,32 @@ void simplify(){
 					done--;
 					optimizedDecisions[done] = 'L';
 					done++;
-					playSound(soundBlip);
-					wait1Msec(200);
+					//playSound(soundBlip);
+					//wait1Msec(200);
 					i++;
 				}
 				else if(before == 'F' && after == 'L'){
 					done--;
 					optimizedDecisions[done] = 'R';
 					done++;
-					playSound(soundBlip);
-					wait1Msec(200);
+					//playSound(soundBlip);
+					//wait1Msec(200);
 					i++;
 				}
 				else if(before == 'L' && after == 'L'){
 					done--;
 					optimizedDecisions[done] = 'R';
 					done++;
-					playSound(soundBlip);
-					wait1Msec(200);
+					//playSound(soundBlip);
+					//wait1Msec(200);
 					i++;
 				}
 				else if(before == 'L' && after == 'F'){
 					done--;
 					optimizedDecisions[done] = 'R';
 					done++;
-					playSound(soundBlip);
-					wait1Msec(200);
+					//playSound(soundBlip);
+					//wait1Msec(200);
 					i++;
 				}
 			}
@@ -206,10 +237,10 @@ void simplify(){
 				done++;
 			}
 		}
-		for (int y = 0; y < done; y++){
-			playSound(soundDownwardTones);
-			wait1Msec(250);
-		}
+		//for (int y = 0; y < done; y++){
+		//	playSound(soundDownwardTones);
+		//	wait1Msec(250);
+		//}
 	}
 }
 
@@ -226,30 +257,28 @@ void reverse(){
 	for (int i = done; i >= 0; i--){
 		if(optimizedDecisions[i] == 'L'){
 			reverseDecisions[j] = 'R';
-			playSound(soundShortBlip);
 			j++;
-			wait1Msec(2000);
+			//wait1Msec(2000);
 		}
 		else if (optimizedDecisions[i] == 'R'){
 			reverseDecisions[j] = 'L';
-			playSound(soundShortBlip);
 			j++;
-			wait1Msec(2000);
+			//wait1Msec(2000);
 		}
 		else if (optimizedDecisions[i] == 'F'){
 			reverseDecisions[j] = 'F';
-			playSound(soundShortBlip);
 			j++;
-			wait1Msec(2000);
+			//wait1Msec(2000);
 		}
 	}
 
-	for (int l = 0; l < j; l++){
-		playSound(soundBlip);
-		wait1Msec(2000);
-	}
+	//for (int l = 0; l < j; l++){
+	//	playSound(soundBlip);
+	//	wait1Msec(2000);
+	//}
 	wait1Msec(2000);
 
+	//depan(5.2);
 	for (int k = 0; k < j; k++){
 		depanSampai(gapLeft, gapFront);
 		if (reverseDecisions[k] == 'R'){
@@ -269,6 +298,7 @@ void reverse(){
 	stopAllMotors();
 }
 
+//void some(){
 task main(){
 
 	float gapLeft = 22.0;
@@ -281,6 +311,7 @@ task main(){
 
 	while(true){
 		depanSampai(gapLeft, gapFront);
+		wait1Msec(250);
 		if(dahNampak)
 			break;
 		tengok(gapLeft);
@@ -293,9 +324,14 @@ task main(){
 	pusing(-1);
 
 	wait1Msec(2000);
-
+	dahNampak = false;
 	simplify();
 	playSound(soundBeepBeep);
 	reverse();
 	depan(2);
 }
+
+//task main(){
+//	pusing(1);
+//	pusing(-1);
+//}
